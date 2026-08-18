@@ -24,4 +24,5 @@ touch /ai-infra-guard/logs/trpc.log
 chmod 644 /ai-infra-guard/logs/trpc.log
 
 echo 启动AI-Infra-Guard Web 服务...
-exec ./ai-infra-guard webserver --server 0.0.0.0:8088
+# 函数平台会通过 PORT 环境变量注入监听端口；默认 8080（本地/容器部署不受影响）
+exec ./ai-infra-guard webserver --server 0.0.0.0:${PORT:-8080}

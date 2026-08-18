@@ -1,0 +1,107 @@
+# =====================================================================
+# AI-Infra-Guard 函数平台（私有 Serverless）专用镜像
+# 与普通 Dockerfile 的区别：
+#   1. 合并 webserver + agent + api-checker 为单容器（函数平台一函数一容器）
+#   2. 监听平台注入的 ${PORT}（默认 8080）
+#   3. 所有可写目录默认重定向到 /tmp（根文件系统只读时可用），
+#      平台挂载持久卷后通过 DB_PATH / UPLOAD_DIR 等环境变量覆盖
+#   4. 不依赖 SYS_ADMIN / seccomp 特权（浏览器扫描能力可能降级）
+# 构建推送: ghcr.io/bryce-huang/aig-faas
+# =====================================================================
+
+# ---------- Stage 1: 前端构建 ----------
+FROM node:22-alpine AS frontend-builder
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app/frontend
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --ignore-scripts
+COPY frontend/ .
+RUN pnpm build
+
+# ---------- Stage 2: Go 构建（webserver + agent 双二进制） ----------
+FROM golang:1.23.2-alpine AS builder
+RUN apk add --no-cache git ca-certificates tzdata
+WORKDIR /app
+COPY . .
+RUN rm -rf ./common/websocket/static/*
+COPY --from=frontend-builder /app/frontend/dist/ ./common/websocket/static/
+RUN go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -trimpath -buildvcs=false -o ai-infra-guard ./cmd/cli/main.go && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -trimpath -buildvcs=false -o agent ./cmd/agent
+
+# ---------- Stage 3: 运行时（Python 全家桶 + 双 Go 二进制） ----------
+FROM python:3.12-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEEPEVAL_TELEMETRY_OPT_OUT=YES \
+    DEEPTEAM_TELEMETRY_OPT_OUT=YES
+
+WORKDIR /app
+
+# agent 侧扫描依赖：git/nmap/chromium（浏览器类探测）
+RUN apt-get update --allow-releaseinfo-change && \
+    apt-get install -y --no-install-recommends \
+        git curl bash tzdata \
+        nmap chromium chromium-sandbox \
+        fonts-wqy-microhei fonts-wqy-zenhei fontconfig && \
+    fc-cache -fv && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir uv
+
+# 四个 Python 子项目（与 Dockerfile_Agent 保持一致）
+COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
+WORKDIR /app/AIG-PromptSecurity
+RUN uv sync
+
+COPY ./mcp-scan /app/mcp-scan/
+WORKDIR /app/mcp-scan
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ./agent-scan /app/agent-scan/
+WORKDIR /app/agent-scan
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ./skill-scan /app/skill-scan/
+WORKDIR /app/skill-scan
+RUN uv sync
+
+COPY ./services/__init__.py /app/services/__init__.py
+COPY ./services/api_checker /app/services/api_checker
+RUN python -m venv /app/api-checker-venv && \
+    /app/api-checker-venv/bin/pip install --no-cache-dir -r /app/services/api_checker/requirements.txt
+
+# webserver 侧产物 + 数据文件
+WORKDIR /app
+COPY --from=builder /app/ai-infra-guard .
+COPY --from=builder /app/agent .
+COPY --from=builder /app/data ./data
+COPY --from=builder /app/trpc_go.yaml .
+COPY --from=builder /app/CHANGELOG.md .
+
+# 只读根文件系统兜底：日志软链到 /tmp（trpc_go.yaml 中 ./logs/trpc.log 相对 /app 解析）
+RUN mkdir -p /tmp/aig/db /tmp/aig/uploads /tmp/aig/logs /tmp/aig/api-checker-data && \
+    ln -sf /tmp/aig/logs /app/logs
+
+# 函数平台运行时环境变量（挂持久卷后由平台 env 覆盖 DB_PATH / UPLOAD_DIR 等）
+ENV APP_ENV=production \
+    TZ=Asia/Shanghai \
+    PORT=8080 \
+    DB_PATH=/tmp/aig/db/tasks.db \
+    UPLOAD_DIR=/tmp/aig/uploads \
+    AIG_API_CHECKER_DATA_DIR=/tmp/aig/api-checker-data \
+    AIG_API_CHECKER_ROOT_PATH=/api-checker
+
+COPY ./scripts/start_faas.sh /app/start_faas.sh
+RUN chmod +x /app/start_faas.sh
+
+EXPOSE 8080
+
+# 健康检查：函数平台通过 HTTP GET / 探活（webserver 前端页面对应 200）
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -sf http://127.0.0.1:${PORT:-8080}/ || exit 1
+
+ENTRYPOINT ["/app/start_faas.sh"]

@@ -31,9 +31,10 @@ mkdir -p "$checker_data_dir"
 chown -R agent:agent /api-checker-data
 
 echo "[agent-container] starting API Checker"
+# 函数平台注入 PORT 时监听之；默认 8000（docker-compose 部署不受影响）
 gosu agent:agent /app/api-checker-venv/bin/python \
     -m uvicorn services.api_checker.server:app \
-    --host 0.0.0.0 --port 8000 --no-access-log &
+    --host 0.0.0.0 --port "${PORT:-8000}" --no-access-log &
 checker_pid=$!
 
 while [ "$stopping" -eq 0 ] && kill -0 "$checker_pid" 2>/dev/null; do

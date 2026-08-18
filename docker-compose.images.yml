@@ -3,7 +3,7 @@ services:
     image: zhuquelab/aig-server:latest
     container_name: ai-infra-guard-webserver
     ports:
-      - "8088:8088"
+      - "8080:8088"
     environment:
       - APP_ENV=production
       - UPLOAD_DIR=/app/uploads

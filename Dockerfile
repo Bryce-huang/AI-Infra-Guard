@@ -91,7 +91,7 @@ ENV PYTHONUNBUFFERED=1
 ENV AIG_API_CHECKER_URL=http://agent:8000
 
 # 暴露端口
-EXPOSE 8088
+EXPOSE 8080
 
 # 声明卷挂载点
 VOLUME ["/app/uploads", "/app/db", "/app/data", "/app/logs"]
