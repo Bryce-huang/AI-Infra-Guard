@@ -83,8 +83,12 @@ COPY --from=builder /app/trpc_go.yaml .
 COPY --from=builder /app/CHANGELOG.md .
 
 # 只读根文件系统兜底：日志软链到 /tmp（trpc_go.yaml 中 ./logs/trpc.log 相对 /app 解析）
+# 运行用户 app/apps (UID/GID 6001/6000，私有平台安全策略要求)
 RUN mkdir -p /tmp/aig/db /tmp/aig/uploads /tmp/aig/logs /tmp/aig/api-checker-data && \
-    ln -sf /tmp/aig/logs /app/logs
+    ln -sf /tmp/aig/logs /app/logs && \
+    groupadd -g 6000 apps && \
+    useradd -m -u 6001 -g 6000 -s /bin/bash app && \
+    chown -R app:apps /app /tmp/aig /home/app
 
 # 函数平台运行时环境变量（挂持久卷后由平台 env 覆盖 DB_PATH / UPLOAD_DIR 等）
 ENV APP_ENV=production \
@@ -96,7 +100,10 @@ ENV APP_ENV=production \
     AIG_API_CHECKER_ROOT_PATH=/api-checker
 
 COPY ./scripts/start_faas.sh /app/start_faas.sh
-RUN chmod +x /app/start_faas.sh
+RUN chmod +x /app/start_faas.sh && chown app:apps /app/start_faas.sh
+
+# 以非 root 用户运行
+USER app
 
 EXPOSE 8080
 

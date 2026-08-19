@@ -9,19 +9,13 @@ set -e
 warn_or_continue() { echo "Warning: $1" >&2; }
 
 echo 正在初始化 AI-Infra-Guard 服务...
-# 创建必要的目录
-mkdir -p /ai-infra-guard/db /ai-infra-guard/uploads /ai-infra-guard/logs
+# 以非 root 用户(app:apps)运行：仅初始化实际使用的可写目录，挂载卷权限不足时告警跳过
+DB_DIR="$(dirname "${DB_PATH:-/app/db/tasks.db}")"
+UPLOAD_DIR="${UPLOAD_DIR:-/app/uploads}"
+mkdir -p "$DB_DIR" "$UPLOAD_DIR" ./logs 2>/dev/null || warn_or_continue "Skip directory creation on mounted volume"
 
-# 设置文件权限
-echo 设置文件权限...
-chmod 755 /ai-infra-guard/db || warn_or_continue "Skip permission change on mounted volume"
-chmod 755 /ai-infra-guard/uploads || warn_or_continue "Skip permission change on mounted volume"
-chmod 755 /ai-infra-guard/logs || warn_or_continue "Skip permission change on mounted volume"
-
-# 创建日志文件
 echo 初始化日志文件...
-touch /ai-infra-guard/logs/trpc.log
-chmod 644 /ai-infra-guard/logs/trpc.log
+touch ./logs/trpc.log 2>/dev/null || warn_or_continue "Skip log file creation on mounted volume"
 
 echo 启动AI-Infra-Guard Web 服务...
 # 函数平台会通过 PORT 环境变量注入监听端口；默认 8080（本地/容器部署不受影响）

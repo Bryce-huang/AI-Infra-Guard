@@ -27,12 +27,12 @@ case "$checker_data_dir" in
         ;;
 esac
 
-mkdir -p "$checker_data_dir"
-chown -R agent:agent /api-checker-data
+mkdir -p "$checker_data_dir" 2>/dev/null || echo "[agent-container] warn: cannot create $checker_data_dir" >&2
+# 容器以非 root 用户(app:apps)运行，无法 chown 挂载卷；卷的属主/权限由平台负责(如 fsGroup=6000)
 
 echo "[agent-container] starting API Checker"
 # 函数平台注入 PORT 时监听之；默认 8000（docker-compose 部署不受影响）
-gosu agent:agent /app/api-checker-venv/bin/python \
+/app/api-checker-venv/bin/python \
     -m uvicorn services.api_checker.server:app \
     --host 0.0.0.0 --port "${PORT:-8000}" --no-access-log &
 checker_pid=$!
@@ -49,7 +49,7 @@ while [ "$stopping" -eq 0 ] && kill -0 "$checker_pid" 2>/dev/null; do
         fi
         if [ "$stopping" -eq 0 ]; then
             echo "[agent-container] starting Agent"
-            gosu agent:agent /app/agent &
+            /app/agent &
             agent_pid=$!
         fi
     fi

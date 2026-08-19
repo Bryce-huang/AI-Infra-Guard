@@ -82,10 +82,11 @@ COPY ./services/__init__.py /app/services/__init__.py
 COPY ./services/api_checker /app/services/api_checker
 COPY ./scripts/start_agent_container.sh /app/start_agent_container.sh
 
-# Create a non-root user
-RUN useradd -m -u 1000 agent && \
+# Create the runtime user app/apps (UID/GID 6001/6000, platform security policy)
+RUN groupadd -g 6000 apps && \
+    useradd -m -u 6001 -g 6000 -s /bin/bash app && \
     mkdir -p /api-checker-data && \
-    chown -R agent:agent /app /api-checker-data && \
+    chown -R app:apps /app /api-checker-data && \
     chmod 755 /app/start_agent_container.sh
 
 RUN chmod 4755 /usr/lib/chromium/chrome-sandbox || \
@@ -106,6 +107,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD ["gosu", "agent:agent", "/app/api-checker-venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).read()"]
+    CMD ["/app/api-checker-venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).read()"]
+
+# Run as the non-root runtime user
+USER app
 
 ENTRYPOINT ["/app/start_agent_container.sh"]

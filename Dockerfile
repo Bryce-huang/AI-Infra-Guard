@@ -74,13 +74,19 @@ RUN pip install --no-cache-dir -r /app/agent-scan/requirements.txt
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh && chown root:root /app/start.sh
 
-# 创建必要的目录并设置权限（仅对镜像内有效）
+# 创建运行用户 app/apps (UID/GID 6001/6000，私有平台安全策略要求)
+RUN addgroup -g 6000 apps && \
+    adduser -D -u 6001 -G apps -s /bin/sh app
+
+# 创建必要的目录（仅对镜像内有效）
 RUN mkdir -p /app/uploads \
-    /app/db && \
-    chown -R root:root /app && \
-    chmod -R 755 /app && \
+    /app/db \
+    /app/logs && \
     mkdir -p /app/AIG-PromptSecurity/utils
 COPY ./AIG-PromptSecurity/utils/strategy_map.json /app/AIG-PromptSecurity/utils/strategy_map.json
+
+# 全部产物属主改为运行用户
+RUN chown -R app:apps /app && chmod -R 755 /app
 
 # 设置环境变量
 ENV APP_ENV=production
@@ -99,6 +105,9 @@ VOLUME ["/app/uploads", "/app/db", "/app/data", "/app/logs"]
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD pgrep ai-infra-guard || exit 1
+
+# 以非 root 用户运行
+USER app
 
 # 启动命令
 CMD ["/app/start.sh"]

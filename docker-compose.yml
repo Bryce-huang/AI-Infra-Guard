@@ -58,8 +58,6 @@ services:
     healthcheck:
       test:
         - CMD
-        - gosu
-        - agent:agent
         - /app/api-checker-venv/bin/python
         - -c
         - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).read()"
