@@ -55,7 +55,8 @@ RUN pip install --no-cache-dir uv
 # 四个 Python 子项目（与 Dockerfile_Agent 保持一致）
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
-RUN uv sync
+# 依赖装入系统 Python（uv run --no-project 看不到项目 .venv，详见 scripts/uv_runner.sh）
+RUN uv pip install --system -r pyproject.toml
 
 COPY ./mcp-scan /app/mcp-scan/
 WORKDIR /app/mcp-scan
@@ -67,7 +68,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./skill-scan /app/skill-scan/
 WORKDIR /app/skill-scan
-RUN uv sync
+RUN uv pip install --system -r pyproject.toml
 
 COPY ./services/__init__.py /app/services/__init__.py
 COPY ./services/api_checker /app/services/api_checker
@@ -97,10 +98,13 @@ ENV APP_ENV=production \
     DB_PATH=/tmp/aig/db/tasks.db \
     UPLOAD_DIR=/tmp/aig/uploads \
     AIG_API_CHECKER_DATA_DIR=/tmp/aig/api-checker-data \
-    AIG_API_CHECKER_ROOT_PATH=/api-checker
+    AIG_API_CHECKER_ROOT_PATH=/api-checker \
+    AIG_UV_BIN=/app/uv_runner.sh
 
 COPY ./scripts/start_faas.sh /app/start_faas.sh
-RUN chmod +x /app/start_faas.sh && chown app:apps /app/start_faas.sh
+COPY ./scripts/uv_runner.sh /app/uv_runner.sh
+RUN chmod 755 /app/start_faas.sh /app/uv_runner.sh && \
+    chown app:apps /app/start_faas.sh /app/uv_runner.sh
 
 # 以非 root 用户运行
 USER app

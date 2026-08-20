@@ -49,7 +49,8 @@ RUN fc-cache -fv
 RUN pip install --no-cache-dir uv
 COPY ./AIG-PromptSecurity /app/AIG-PromptSecurity/
 WORKDIR /app/AIG-PromptSecurity
-RUN uv sync
+# 依赖装入系统 Python（uv run --no-project 看不到项目 .venv，详见 scripts/uv_runner.sh）
+RUN uv pip install --system -r pyproject.toml
 
 
 
@@ -63,7 +64,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./skill-scan /app/skill-scan/
 WORKDIR /app/skill-scan
-RUN uv sync
+RUN uv pip install --system -r pyproject.toml
 
 COPY ./services/api_checker/requirements.txt /tmp/api-checker-requirements.txt
 RUN python -m venv /app/api-checker-venv && \
@@ -81,13 +82,14 @@ COPY --from=builder /app/data /app/data
 COPY ./services/__init__.py /app/services/__init__.py
 COPY ./services/api_checker /app/services/api_checker
 COPY ./scripts/start_agent_container.sh /app/start_agent_container.sh
+COPY ./scripts/uv_runner.sh /app/uv_runner.sh
 
 # Create the runtime user app/apps (UID/GID 6001/6000, platform security policy)
 RUN groupadd -g 6000 apps && \
     useradd -m -u 6001 -g 6000 -s /bin/bash app && \
     mkdir -p /api-checker-data && \
     chown -R app:apps /app /api-checker-data && \
-    chmod 755 /app/start_agent_container.sh
+    chmod 755 /app/start_agent_container.sh /app/uv_runner.sh
 
 RUN chmod 4755 /usr/lib/chromium/chrome-sandbox || \
     chmod 4755 /usr/lib/chromium/chromium-sandbox || \
@@ -102,7 +104,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     AIG_API_CHECKER_ROOT_PATH=/api-checker \
     AIG_API_CHECKER_DATA_DIR=/api-checker-data \
-    AIG_API_CHECKER_LOG_LEVEL=INFO
+    AIG_API_CHECKER_LOG_LEVEL=INFO \
+    AIG_UV_BIN=/app/uv_runner.sh
 
 EXPOSE 8000
 
