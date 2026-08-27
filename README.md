@@ -34,6 +34,11 @@
     </a>
 </p>
 <p align="center">
+    <a href="https://github.com/openclaw/clawscan" target="_blank">
+       <img src="https://img.shields.io/badge/OpenClaw-Recommended-ff6b6b" alt="OpenClaw Recommended">
+    </a>
+</p>
+<p align="center">
   <a href="https://trendshift.io/repositories/13637" target="_blank"><picture><source media="(prefers-color-scheme: dark)" srcset="https://trendshift.io/api/badge/repositories/13637"><source media="(prefers-color-scheme: light)" srcset="https://trendshift.io/api/badge/repositories/13637"><img src="https://trendshift.io/api/badge/repositories/13637" alt="Tencent%2FAI-Infra-Guard | Trendshift" width="250" height="55"/></picture></a>&nbsp;
   <a href="https://www.blackhat.com/eu-25/arsenal/schedule/index.html#aigai-infra-guard-48381" target="_blank"><img src="img/blackhat.png" alt="Tencent%2FAI-Infra-Guard | blackhat" width="175" height="55"/></a>&nbsp;
   <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" width="273" height="55"/></a>
@@ -66,11 +71,11 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 
 ## 🚀 What's New
 
+- **2026-08-26** · [v4.6.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.0) — API Checker: detect AI model relay abuse via traffic analysis; full report i18n (Agent/MCP/Infra scans output in selected language); MCP SDK 2.0 migration; strict YAML rule validation; 7 new component fingerprints, 100+ new CVE rules.
 - **2026-08-17** · [v4.5.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.2) — Skill-Scan: .pyc bytecode bypass detection + charset smuggling defense; MCP-Scan: RCE prevention via tool whitelisting in dynamic mode; new SkillJack research project; vuln library expanded to 2000+ CVE rules.
 - **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — Jailbreak Evaluation: 4 multi-turn jailbreak attacks (Many-Shot, PAIR, GOAT, ActorAttack); Agent-Scan: 5 new OWASP skills + web-exfiltration detection (10 skills total); MCP-Scan: 4 new security rules
 - **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI Security Skill Market launched (3 official skills); frontend fully open-sourced; Skill scan engine upgraded (9 risk categories, SkillTrustBench top score 0.9848); Skill/MCP/Agent scan as standalone CLI; vuln library expanded to 130 components, 1888 rules
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP Scan: 3 new threat detection rules (tool poisoning, credential exfiltration, command injection); 6 new llama.cpp CVE rules; `model.token` now optional with system default fallback.
-- **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security: 9 new single-turn jailbreak operators; new `aig-agent-redteam` skill for comprehensive Agent red-team assessment.
 
 👉 [Earlier releases](./CHANGELOG.md) · 🛒 [AI Security Skill Market](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
@@ -87,7 +92,7 @@ Help us improve A.I.G! Please take 3-5 minutes to fill out our [User Feedback Su
 - [🙏 Acknowledgements](#-acknowledgements)
 - [💬 Join the Community](#-join-the-community)
 - [📖 Citation](#-citation)
-- [📚 Papers](#-papers)
+- [📚 Research & Papers](#-research--papers)
 - [⚖️ License & Attribution](#️-license--attribution)
 <br><br>
 ## 🚀 Quick Start
@@ -574,9 +579,15 @@ If you use A.I.G in your research, please cite:
 ```
 <br>
 
-## 📚 Papers
+## 📚 Research & Papers
 
-> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — Open-source code, datasets, and artifacts from our research work.
+**Research:**
+
+1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — Authorized security assessment of DeepSeek Harness against indirect prompt-injection across 14,560 agent runs. [[code]](./Research/deepseek-harness-security-assessment)
+
+2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — Demonstrates how poisoned trajectories can inject persistent backdoors into self-evolving agent skill systems. [[code]](./Research/SkillJack)
+
+**Papers:**
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — A comprehensive framework for securing AI agent systems through multi-layer red teaming across infrastructure, supply chain, runtime interaction, and deployment surfaces. [[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](./Securing_the_AI_Agent.pdf)
 

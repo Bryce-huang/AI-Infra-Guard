@@ -34,6 +34,11 @@
     </a>
 </p>
 <p align="center">
+    <a href="https://github.com/openclaw/clawscan" target="_blank">
+       <img src="https://img.shields.io/badge/OpenClaw-Recommended-ff6b6b" alt="OpenClaw Recommended">
+    </a>
+</p>
+<p align="center">
   <a href="https://trendshift.io/repositories/13637" target="_blank"><picture><source media="(prefers-color-scheme: dark)" srcset="https://trendshift.io/api/badge/repositories/13637"><source media="(prefers-color-scheme: light)" srcset="https://trendshift.io/api/badge/repositories/13637"><img src="https://trendshift.io/api/badge/repositories/13637" alt="Tencent%2FAI-Infra-Guard | Trendshift" width="250" height="55"/></picture></a>&nbsp;
   <a href="https://www.blackhat.com/eu-25/arsenal/schedule/index.html#aigai-infra-guard-48381" target="_blank"><img src="../img/blackhat.png" alt="Tencent%2FAI-Infra-Guard | blackhat" width="175" height="55"/></a>&nbsp;
   <a href="https://github.com/deepseek-ai/awesome-deepseek-integration" target="_blank"><img src="../img/awesome-deepseek.png" alt="Tencent%2FAI-Infra-Guard | awesome-deepseek-integration" width="273" height="55"/></a>
@@ -64,11 +69,11 @@
 
 ## 🚀 最新动态
 
+- **2026-08-26** · [v4.6.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.6.0) — API Checker：通过流量分析检测 AI 模型中继滥用；扫描报告全面国际化（Agent/MCP/Infra 扫描支持选定语言输出）；MCP SDK 2.0 迁移；新增 7 个组件指纹，100+ 新 CVE 规则。
 - **2026-08-17** · [v4.5.2](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.2) — Skill-Scan：新增 .pyc 字节码绕过检测 + 字符集走私防御；MCP-Scan：动态模式工具白名单防止 RCE；新增 SkillJack 研究项目；漏洞库扩展至 2000+ CVE 规则。
 - **2026-07-30** · [v4.5.1](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.1) — 大模型安全体检(Jailbreak Evaluation)：新增 4 种多轮越狱攻击（Many-Shot、PAIR、GOAT、ActorAttack）；Agent-Scan：新增 5 个 OWASP 检测技能 + Web 数据外传检测（共 10 个技能）；MCP-Scan：新增 4 条安全检测规则
 - **2026-07-27** · [v4.5.0](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.5.0) — AI安全技能市场上线（3款官方Skill）；前端全面开源；Skill扫描引擎升级（9类风险检测，SkillTrustBench最高0.9848）；Skill/MCP/Agent扫描独立CLI化；漏洞库扩展至130组件、1888规则
 - **2026-06-25** · [v4.1.15](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.15) — MCP 扫描新增 3 条威胁检测规则（工具投毒、凭证窃取、命令注入）；新增 6 条 llama.cpp CVE 规则；扫描配置中 `model.token` 现支持省略，自动回退到系统默认模型。
-- **2026-06-18** · [v4.1.14](https://github.com/Tencent/AI-Infra-Guard/releases/tag/v4.1.14) — Prompt Security：9 种新单轮越狱攻击方法；新增 `aig-agent-redteam` skill，支持全面 Agent 红队评估。
 
 👉 [更早版本](../CHANGELOG.md) · 🛒 [AI安全技能市场](https://matrix.tencent.com/skill-market/) · 🔍 [skill-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/skill-scan) · 🔍 [mcp-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/mcp-scan) · 🔍 [agent-scan CLI](https://github.com/Tencent/AI-Infra-Guard/tree/main/agent-scan) · 📊 [SkillTrustBench](https://matrix.tencent.com/skilltrustbench/)
 
@@ -84,7 +89,7 @@
 - [🙏 致谢](#-致谢)
 - [💬 加入社区](#-加入社区)
 - [📖 引用](#-引用)
-- [📚 论文](#-论文)
+- [📚 研究与论文](#-研究与论文)
 - [📄 开源协议](#-开源协议)
 
 ## 🚀 快速开始
@@ -540,9 +545,15 @@ A.I.G 的核心能力之一就是其丰富且可快速配置的插件系统。�
 ```
 <br>
 
-## 📚 论文
+## 📚 研究与论文
 
-> 📂 **[Research Projects](https://github.com/Tencent/AI-Infra-Guard/tree/main/Research)** — 我们研究工作的开源代码、数据集与工件。
+**Research:**
+
+1. **"DeepSeek Harness Indirect Prompt-Injection Assessment"** — 对 DeepSeek Harness 的授权安全评估，覆盖 14,560 次智能体运行的间接提示词注入测试。[[code]](../Research/deepseek-harness-security-assessment)
+
+2. **"SkillJack: Persistent Skill Backdoors in Self-Evolving Agents"** — 展示如何通过投毒轨迹向自进化智能体技能系统注入持久化后门。[[code]](../Research/SkillJack)
+
+**Papers:**
 
 1. **"Securing the AI Agent: A Unified Framework for Multi-Layer Agent Red Teaming"** — 针对 AI 智能体系统的多层红队测试综合框架，覆盖基础设施、供应链、运行时交互和部署面。[[arXiv]](https://arxiv.org/pdf/2606.31227) [[pdf]](../Securing_the_AI_Agent.pdf)
 
