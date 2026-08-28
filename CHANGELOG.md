@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.6.1] - 2026-08-28
+
+### Added
+- **Docker**: Add serverless-ready (faas) images with `start_faas.sh` entrypoint
+- **Security**: Run all images as non-root user `app:apps` (6001/6000)
+- **Deploy**: Publish images to `ghcr.io` registry (server & agent)
+
+### Changed
+- **Deploy**: Switch compose to port 8080
+- **CI**: Build Docker images for `linux/amd64` only (drop slow QEMU arm64)
+- **API Checker**: Generalize relay consistency check documentation
+
+### Fixed
+- **MCP-Scan**: Adapt to MCP Python SDK 2.x API changes; cast `read_timeout_seconds` to float for SDK 2.x type safety
+- **Agent**: Python tasks fail with `ModuleNotFoundError` under new `uv`
+
+### Contributors
+Bryce-huang
+
 ## [v4.6.0] - 2026-08-26
 
 ### Added
