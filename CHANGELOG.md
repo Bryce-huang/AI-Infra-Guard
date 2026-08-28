@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Docker**: Add serverless-ready (faas) images with `start_faas.sh` entrypoint
 - **Security**: Run all images as non-root user `app:apps` (6001/6000)
-- **Deploy**: Publish images to `ghcr.io` registry (server & agent)
+- **Deploy**: Publish images to Docker Hub registry (server & agent)
 
 ### Changed
 - **Deploy**: Switch compose to port 8080
